@@ -1,25 +1,39 @@
 <template>
-  <a href="" class="course">
-    <div class="course__name">Курс: {{ course.name }}</div>
-    <div class="course__author">Описание: {{ course.describtion }}</div>
-  </a>
+  <div class="course-element">
+    <h3>{{ course.name }}</h3>
+    <p>{{ course.description }}</p>
+    <form-button @click="deleteCourse" label="Удалить курс" />
+  </div>
 </template>
 
 <script>
+import FormButton from "@/components/FormButton.vue";
+
 export default {
   props: {
-    course: Object,
+    course: {
+      course: Object,
+    },
+  },
+  components: {
+    FormButton,
+  },
+  methods: {
+    async deleteCourse() {
+      try {
+        const response = await fetch(`/api/courses/${this.course.id}`, {
+          method: "DELETE",
+        });
+        if (response.ok) {
+          console.log("Курс успешно удален");
+          this.$emit("course-deleted");
+        } else {
+          throw new Error("Ошибка при удалении курса");
+        }
+      } catch (error) {
+        console.error("Ошибка при удалении курса", error);
+      }
+    },
   },
 };
 </script>
-<style scoped>
-.course {
-  display: flex;
-  flex-direction: column;
-  border: 2px solid #7a956b;
-}
-.course__name {
-}
-.course__author {
-}
-</style>

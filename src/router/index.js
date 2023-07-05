@@ -1,14 +1,18 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import store from "@/store/index";
-import RegistrationPage from "@/views/RegistrationPage.vue";
-import AuthorizePage from "@/views/AuthorizePage.vue";
+import store from "@/store";
 import CoursesPage from "@/views/CoursesPage.vue";
 import ErrorPage from "@/views/ErrorPage.vue";
+import rAuth from "./rAuth";
+import authentication from "@/mixins/authentication";
+import PersonalPage from "@/views/PersonalPage";
+import CreatorCoursePage from "@/views/CreatorCoursePage";
+import EditCoursePage from "@/views/EditCoursePage";
 
 Vue.use(VueRouter);
 
 const routes = [
+  ...rAuth,
   {
     path: "/",
     name: "courses",
@@ -16,21 +20,27 @@ const routes = [
     meta: { requiresAuth: true },
   },
   {
-    path: "/registration",
-    name: "registration",
-    component: RegistrationPage,
-    meta: { guest: true },
-  },
-  {
-    path: "/authorization",
-    name: "authorization",
-    component: AuthorizePage,
-    meta: { guest: true },
-  },
-  {
     path: "*",
     name: "error",
     component: ErrorPage,
+  },
+  {
+    path: "/personal",
+    name: "personal",
+    component: PersonalPage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/createcourse",
+    name: "createcourse",
+    component: CreatorCoursePage,
+    meta: { requiresAuth: true },
+  },
+  {
+    path: "/editcourse",
+    name: "editcourse",
+    component: EditCoursePage,
+    meta: { requiresAuth: true },
   },
 ];
 
@@ -40,30 +50,20 @@ const router = new VueRouter({
   routes,
 });
 
-async function sendGetRequest(url) {
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    credentials: "include",
-  });
-
-  return response;
-}
+console.log(process.env.BASE_URL);
 
 router.beforeEach(async (to, from, next) => {
-  const response = await sendGetRequest(
-    "http://localhost:3000/authentication/"
+  const response = await authentication.methods.sendGetRequest(
+    "authentication"
   );
-  if (response.ok) store.commit("changeAuth", true);
-  else store.commit("changeAuth", false);
+  if (response.ok) store.commit("mAuth/changeAuth", true);
+  else store.commit("mAuth/changeAuth", false);
 
-  if (to.matched.some((record) => record.meta.requiresAuth))
-    if (store.state.isAuthenticated) next();
+  if (to.meta.requiresAuth)
+    if (store.state.mAuth.isAuthenticated) next();
     else next({ name: "authorization" });
-  else if (to.matched.some((record) => record.meta.guest))
-    if (!store.state.isAuthenticated) next();
+  else if (to.meta.guest)
+    if (!store.state.mAuth.isAuthenticated) next();
     else next(from);
   else next();
 });

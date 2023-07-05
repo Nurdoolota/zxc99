@@ -2,7 +2,7 @@
   <div>
     <div class="form">
       <label>{{ label }}</label>
-      <input :value="value" @input="input" type="text" />
+      <input :value="value" @input="input" :type="type" />
     </div>
   </div>
 </template>
@@ -11,11 +11,19 @@
 export default {
   name: "FormInput",
   props: {
-    value: String,
+    value: {
+      type: String,
+      default: "",
+    },
     label: {
       type: String,
       default: "",
     },
+    type: {
+      type: String,
+      default: "text",
+    },
+    autocomplete: {},
   },
   methods: {
     input(event) {

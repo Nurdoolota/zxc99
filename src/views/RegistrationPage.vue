@@ -7,7 +7,7 @@
           rules="required|email"
           v-slot="{ errors }"
         >
-          <form-input v-model.trim="email" label="Почта" />
+          <form-input v-model.trim="dataReg.email" label="Почта" />
           <span>{{ errors[0] }}</span>
         </ValidationProvider>
         <ValidationProvider
@@ -15,7 +15,7 @@
           rules="required"
           v-slot="{ errors }"
         >
-          <form-input v-model.trim="name" label="Логин" />
+          <form-input v-model.trim="dataReg.name" label="Логин" />
           <span>{{ errors[0] }}</span>
         </ValidationProvider>
         <ValidationProvider
@@ -24,7 +24,11 @@
           vid="confirmation"
           v-slot="{ errors }"
         >
-          <form-input v-model.trim="password" label="Пароль" />
+          <form-input
+            v-model.trim="dataReg.password"
+            label="Пароль"
+            type="password"
+          />
           <span>{{ errors[0] }}</span>
         </ValidationProvider>
         <ValidationProvider
@@ -35,6 +39,7 @@
           <form-input
             v-model.trim="confirmPassword"
             label="Подтверждение пароля"
+            type="password"
           />
           <span class="form__error-message">{{ errors[0] }}</span>
         </ValidationProvider>
@@ -61,9 +66,11 @@ export default {
   mixins: [authentication],
   data() {
     return {
-      name: "",
-      email: "",
-      password: "",
+      dataReg: {
+        name: "",
+        email: "",
+        password: "",
+      },
       confirmPassword: "",
       error: null,
     };
@@ -72,12 +79,8 @@ export default {
     async register() {
       try {
         const response = await this.sendPostRequest(
-          {
-            email: this.email,
-            name: this.name,
-            password: this.password,
-          },
-          "http://localhost:3000/authentication/register"
+          "authentication/register",
+          this.dataReg
         );
         console.log(await response.json());
         if (response.ok) {

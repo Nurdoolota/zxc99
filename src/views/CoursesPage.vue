@@ -1,7 +1,11 @@
 <template>
   <div class="courses">
     <h1 class="courses__title">Курсы</h1>
-    <button class="courses__button" @click="logOut">Выход</button>
+    <form-button class="courses__button" @click="logOut" label="Выход" />
+    <form-button
+      @click="$router.push({ name: 'personal' })"
+      label="Личный кабинет"
+    />
     <div class="courses__list">
       <course-element
         class="courses__item"
@@ -10,28 +14,32 @@
         :course="course"
       />
     </div>
-    <p v-if="error" class="error-message">{{ error }}</p>
+    <p v-if="!courses.length" class="error-message">Курсы отсутствуют</p>
   </div>
 </template>
 
 <script>
 import CourseElement from "@/components/CourseElement.vue";
 import authentication from "../mixins/authentication";
+import FormButton from "@/components/FormButton.vue";
 export default {
   components: {
     CourseElement,
+    FormButton,
   },
   mixins: [authentication],
   data() {
     return {
       courses: [],
-      error: null,
     };
   },
   mounted() {
     this.getCourses();
   },
   methods: {
+    addItem(item) {
+      this.courses.push(item);
+    },
     async logOut() {
       try {
         const response = await this.sendPostRequest(
@@ -77,14 +85,18 @@ export default {
   flex-direction: column;
   align-items: center;
 }
+
 .courses__title {
   margin: 0px 0px 10px 0px;
 }
+
 .courses__button {
   margin: 0px 0px 10px 0px;
 }
+
 .courses__list {
 }
+
 .courses__item {
 }
 

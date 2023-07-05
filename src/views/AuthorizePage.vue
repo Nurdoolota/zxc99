@@ -5,9 +5,14 @@
         <ValidationProvider
           class="form__validator"
           rules="required"
+          autocomplete="on"
           v-slot="{ errors }"
         >
-          <form-input class="form__input" v-model.trim="email" label="Почта" />
+          <form-input
+            class="form__input"
+            v-model.trim="dataAuth.email"
+            label="Почта"
+          />
           <span>{{ errors[0] }}</span>
         </ValidationProvider>
         <ValidationProvider
@@ -17,8 +22,9 @@
         >
           <form-input
             class="form__input"
-            v-model.trim="password"
+            v-model.trim="dataAuth.password"
             label="Пароль"
+            type="password"
           />
           <span>{{ errors[0] }}</span>
         </ValidationProvider>
@@ -47,8 +53,10 @@ export default {
   mixins: [authentication],
   data() {
     return {
-      email: "",
-      password: "",
+      dataAuth: {
+        email: "",
+        password: "",
+      },
       error: null,
     };
   },
@@ -56,11 +64,8 @@ export default {
     async login() {
       try {
         const response = await this.sendPostRequest(
-          {
-            email: this.email,
-            password: this.password,
-          },
-          "http://localhost:3000/authentication/log-in"
+          `authentication/log-in`,
+          this.dataAuth
         );
         if (response.ok) {
           this.$router.push({ name: "courses" });
